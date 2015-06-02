@@ -12,6 +12,10 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var url = require('url');
+var fs = require('fs');
+var path = require('path');
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -35,11 +39,41 @@ var requestHandler = function(request, response) {
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
+
+  var filePath = './' + url.parse(request.url, true).pathname;
+  console.log(filePath);
+
+  // var parseFileContents = function(data)
+  // {
+  //   return JSON.parse(data);
+  // }
+
+  // createdAt|objectId|roomname|text|updatedAt|username
+
+  var returnObj;
+  if(filePath === ".//favicon.ico")
+  {
+    //filePath = ".//classes/messages";
+    response.writeHead(200, {'Content-Type' : 'image/x-icon'});
+    response.end();
+  }
+
+  returnObj = fs.readFileSync(filePath, {encoding: 'utf-8'});
+
+//console.log(returnObj);
+
+//returnObj = JSON.parse(returnObj);
+
+//console.log(returnObj);
+
+
+
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  //headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -52,7 +86,24 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+
+
+
+
+//   var obj = {"results":[
+//   {"roomname":"room1","text":"message1","username":"user1"}
+// ]};
+
+
+//get the file
+//open the file
+//parse file that we send in
+//create the object
+
+
+
+  response.end(returnObj);
+  //response.end("hello world");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -71,3 +122,4 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
+module.exports.requestHandler = requestHandler;

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>chatterbox</title>
+    <link rel="stylesheet" href="styles/styles.css">
+
+    <!-- dependencies -->
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <!-- your scripts -->
+    <script src="env/config.js"></script>
+    <script src="scripts/app.js"></script>
+  </head>
+  <body>
+    <div id="main">
+      <h1 id="title">chatterbox</h1>
+      <button type="button" class="button button-refresh">Refresh</button>
+      <textarea name="Showroom" id="showroom-form" rows="1" cols="30" placeholder="Show one room..."></textarea>
+      <button type="button" class="button button-showroom">Show Room</button>
+      <textarea name="Friend" id="friend-form" rows="1" cols="30" placeholder="Name of friend"></textarea>
+      <button type="button" class="button button-addfriend">Add friend</button>
+      <button type="button" class="button button-removefriend">Remove friend</button>
+      <!-- Your HTML goes here! -->
+    </div>
+    <div id="submit">
+      <textarea name="Message" id="submission-form" rows="4" cols="80" placeholder="Enter message here..."></textarea>
+      <textarea name="User name" id="username-text" rows="1" cols="30" placeholder="Enter user name here..."></textarea>
+      <textarea name="Room name" id="roomname-text" rows="1" cols="30" placeholder="Enter room name here..."></textarea>
+      <button type="button" class="button button-submit">Submit</button>
+    </div>
+  </body>
+</html>
