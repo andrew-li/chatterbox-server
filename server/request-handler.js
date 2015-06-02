@@ -15,6 +15,7 @@ this file and include it in basic-server.js so that it actually works.
 var url = require('url');
 var fs = require('fs');
 var path = require('path');
+var qs = require('querystring');
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -50,60 +51,110 @@ var requestHandler = function(request, response) {
 
   // createdAt|objectId|roomname|text|updatedAt|username
 
-  var returnObj;
-  if(filePath === ".//favicon.ico")
+  var returnStr = fs.readFileSync(filePath, {encoding: 'utf-8'});
+
+  var userMessageObj;
+  if (request.method === 'POST') {
+    var body = '';
+    request.on('data', function (data) {
+      body += data;
+
+      // Too much POST data, kill the connection!
+      if (body.length > 1e6)
+          request.connection.destroy();
+
+      //console.log(body);
+
+      //console.log(JSON.parse(body));
+
+      userMessageObj = JSON.parse(body);
+
+      //console.log(userMessageObj);
+    });
+
+    //not used?
+    request.on('end', function () {
+      //var post = qs.parse(body);
+
+      var fileContentsObj = JSON.parse(returnStr);
+
+      fileContentsObj.results.push(userMessageObj);
+
+      //console.log(fileContentsObj.results);
+
+      returnStr = JSON.stringify(fileContentsObj);
+
+      fs.writeFileSync(filePath, returnStr, {encoding: 'utf-8'});
+
+      headers['Content-Type'] = "application/json";
+
+      // .writeHead() writes to the request line and headers of the response,
+      // which includes the status and all headers.
+      response.writeHead(statusCode, headers);
+
+      // Make sure to always call response.end() - Node may not send
+      // anything back to the client until you do. The string you pass to
+      // response.end() will be the body of the response - i.e. what shows
+      // up in the browser.
+      //
+      // Calling .end "flushes" the response's internal buffer, forcing
+      // node to actually send all the data over to the client.
+
+      response.end(returnStr);
+      //response.end("hello world");
+
+    });
+
+  }
+  else //if (request.method == 'GET')
   {
-    //filePath = ".//classes/messages";
-    response.writeHead(200, {'Content-Type' : 'image/x-icon'});
-    response.end();
+
+    //get the file
+    //open the file
+    //parse file that we send in
+    //create the object
+
+    if(filePath === ".//favicon.ico")
+    {
+      //filePath = ".//classes/messages";
+      response.writeHead(200, {'Content-Type' : 'image/x-icon'});
+      response.end();
+    }
+
+
+    //console.log(returnObj);
+
+    //returnObj = JSON.parse(returnObj);
+
+    //console.log(returnObj);
+
+
+
+    // Tell the client we are sending them plain text.
+    //
+    // You will need to change this if you are sending something
+    // other than plain text, like JSON or HTML.
+    //headers['Content-Type'] = "text/plain";
+    headers['Content-Type'] = "application/json";
+
+    // .writeHead() writes to the request line and headers of the response,
+    // which includes the status and all headers.
+    response.writeHead(statusCode, headers);
+
+    // Make sure to always call response.end() - Node may not send
+    // anything back to the client until you do. The string you pass to
+    // response.end() will be the body of the response - i.e. what shows
+    // up in the browser.
+    //
+    // Calling .end "flushes" the response's internal buffer, forcing
+    // node to actually send all the data over to the client.
+
+
+    response.end(returnStr);
+    //response.end("hello world");
+
   }
 
-  returnObj = fs.readFileSync(filePath, {encoding: 'utf-8'});
-
-//console.log(returnObj);
-
-//returnObj = JSON.parse(returnObj);
-
-//console.log(returnObj);
-
-
-
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  //headers['Content-Type'] = "text/plain";
-  headers['Content-Type'] = "application/json";
-
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-
-
-
-
-//   var obj = {"results":[
-//   {"roomname":"room1","text":"message1","username":"user1"}
-// ]};
-
-
-//get the file
-//open the file
-//parse file that we send in
-//create the object
-
-
-
-  response.end(returnObj);
-  //response.end("hello world");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).

@@ -159,7 +159,9 @@ App.prototype.send = function(message) {
     url: this.server,
     type: 'POST',
     data: JSON.stringify(message),
+    //data: message,
     contentType: 'application/json',
+    //contentType: 'plain/text',
     success: function (data) {
       console.log('chatterbox: Message sent');
     },
