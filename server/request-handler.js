@@ -42,14 +42,23 @@ var requestHandler = function(request, response) {
 
 
   var filePath = './' + url.parse(request.url, true).pathname;
-  console.log(filePath);
-
-  // var parseFileContents = function(data)
-  // {
-  //   return JSON.parse(data);
-  // }
 
   // createdAt|objectId|roomname|text|updatedAt|username
+
+  if (fs.existsSync(filePath) === false) {
+
+    headers['Content-Type'] = "text/plain";
+
+    statusCode = 404;
+
+    returnStr = "404";
+
+    response.writeHead(statusCode, headers);
+
+    response.end(returnStr);
+
+    return;
+  }
 
   var returnStr = fs.readFileSync(filePath, {encoding: 'utf-8'});
 
@@ -63,24 +72,16 @@ var requestHandler = function(request, response) {
       if (body.length > 1e6)
           request.connection.destroy();
 
-      //console.log(body);
-
-      //console.log(JSON.parse(body));
-
       userMessageObj = JSON.parse(body);
 
-      //console.log(userMessageObj);
     });
 
-    //not used?
     request.on('end', function () {
-      //var post = qs.parse(body);
 
       var fileContentsObj = JSON.parse(returnStr);
 
-      fileContentsObj.results.push(userMessageObj);
-
-      //console.log(fileContentsObj.results);
+      //fileContentsObj.results.push(userMessageObj);
+      fileContentsObj.results.unshift(userMessageObj);
 
       returnStr = JSON.stringify(fileContentsObj);
 
@@ -88,21 +89,13 @@ var requestHandler = function(request, response) {
 
       headers['Content-Type'] = "application/json";
 
-      // .writeHead() writes to the request line and headers of the response,
-      // which includes the status and all headers.
+      statusCode = 201;
+
       response.writeHead(statusCode, headers);
 
-      // Make sure to always call response.end() - Node may not send
-      // anything back to the client until you do. The string you pass to
-      // response.end() will be the body of the response - i.e. what shows
-      // up in the browser.
-      //
-      // Calling .end "flushes" the response's internal buffer, forcing
-      // node to actually send all the data over to the client.
-
       response.end(returnStr);
-      //response.end("hello world");
 
+      return;
     });
 
   }
@@ -153,6 +146,7 @@ var requestHandler = function(request, response) {
     response.end(returnStr);
     //response.end("hello world");
 
+    return;
   }
 
 };
